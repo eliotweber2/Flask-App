@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    </head>
+
+    <body>
+        <h1>Pike Labs Web App</h1>
+            Form Testing yay1!!!
+            {% if g.name and g.age%}
+            <p>
+                Hello {{ g.name }}! You are {{ g.age }} years old.
+            </p>
+            {% endif %}
+        <form method="POST">
+            <label for="name">Name:</label><br>
+            <input type="text" id="name" name="name"><br>
+            <label for="age">Age:</label><br>
+            <input type="text" id="age" name="age"><br><br>
+            <input type="submit" value="Submit">
+        </form>
+    </body>
+</html>   
