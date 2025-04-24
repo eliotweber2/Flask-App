@@ -1,27 +1,24 @@
 from flask import Flask, render_template, request
+import os
 
 app = Flask(__name__)
 
-last_data = {
-    "name": "John Doe",
-    "age": 30
-}
-
 @app.route("/")
-def hello_world():
+def home():
     return render_template("index.html")
 
-@app.route("/testform", methods=('GET', 'POST'))
-def test_form():
-    if request.method == "GET":
-        return render_template("testform.jinja", name=last_data["name"], age=last_data["age"])
+@app.route("/interpreter", methods=('GET', 'POST'))
+def interpreter():
+    text_output = ""
+    is_processing = False
+    
     if request.method == "POST":
-        name = request.form.get("name")
-        age = request.form.get("age")
-        last_data["name"] = name
-        last_data["age"] = age
-        print(f"Name: {name}, Age: {age}")
-        return render_template("testform.jinja", name=name, age=age)
-
-#Run command
-#python -m flask --app web_app/index run
+        if 'video' in request.files:
+            # In a real app, you would process the video here
+            # For demo purposes, we're just returning a sample result
+            text_output = "Hello! This is sample sign language interpretation text."
+            is_processing = True
+    
+    return render_template("interpreter.html", 
+                          text_output=text_output,
+                          is_processing=is_processing)
