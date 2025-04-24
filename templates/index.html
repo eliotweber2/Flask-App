@@ -1,16 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Language Interpreter - Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Sign Language Interpreter</h1>
+            <nav>
+                <ul>
+                    <li><a href="/" class="active">Home</a></li>
+                    <li><a href="/interpreter">Interpreter</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
 
-    <body>
-        <h1>Pike Labs Web App</h1>
-        <p>
-            Lorem ipsum dolor sit amet consectetur,
-            adipisicing elit. Velit aperiam maiores,
-            recusandae itaque accusantium est impedit quam.
-            Impedit ratione, velit et quos facilis suscipit
-            quis maxime magni corporis consequatur recusandae.
-        </p>
-    </body>
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h2>Breaking Down Communication Barriers</h2>
+                <p>Our advanced sign language interpreter uses AI to convert sign language into text in real-time.</p>
+                <a href="/interpreter" class="button">Try It Now</a>
+            </div>
+        </section>
+
+        <section class="features container">
+            <h2>How It Works</h2>
+            <div class="feature-cards">
+                <div class="card">
+                    <div class="card-icon">📹</div>
+                    <h3>Capture</h3>
+                    <p>Upload a video or use your webcam to capture sign language.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🧠</div>
+                    <h3>Process</h3>
+                    <p>Our AI model analyzes the signs frame by frame.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📝</div>
+                    <h3>Interpret</h3>
+                    <p>Sign language is converted to readable text in real-time.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Sign Language Interpreter</p>
+        </div>
+    </footer>
+</body>
 </html>
