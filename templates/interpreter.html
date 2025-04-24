@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Language Interpreter</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Sign Language Interpreter</h1>
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/interpreter" class="active">Interpreter</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="interpreter-section">
+            <h2>Upload Video or Use Live Camera</h2>
+            
+            <div class="interpreter-options">
+                <div class="option-card">
+                    <h3>Upload Video</h3>
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="file-input-container">
+                            <input type="file" id="video" name="video" accept="video/*">
+                            <label for="video" class="file-label">Choose Video</label>
+                        </div>
+                        <button type="submit" class="button">Process Video</button>
+                    </form>
+                </div>
+                
+                <div class="option-card">
+                    <h3>Use Live Camera</h3>
+                    <div class="camera-container">
+                        <video id="webcam" autoplay playsinline></video>
+                        <button id="start-camera" class="button">Start Camera</button>
+                        <button id="start-recording" class="button" disabled>Start Interpretation</button>
+                        <button id="stop-recording" class="button" disabled>Stop</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="interpretation-results">
+                <h3>Interpretation Results</h3>
+                <div class="results-container" id="results-area">
+                    {% if is_processing %}
+                        <div class="interpretation-text">{{ text_output }}</div>
+                    {% else %}
+                        <p class="placeholder-text">Interpretation results will appear here after processing.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Sign Language Interpreter</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/camera.js') }}"></script>
+</body>
+</html>
