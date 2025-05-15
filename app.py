@@ -17,6 +17,7 @@ def interpreter():
             # In a real app, you would process the video here
             # For demo purposes, we're just returning a sample result
             text_output = "Hello! This is sample sign language interpretation text."
+            print(len(request.files))
             is_processing = True
     
     return render_template("interpreter.html", 
