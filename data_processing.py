@@ -1,7 +1,5 @@
 import numpy as np
 import pandas as pd
-import os # Typically used for file path operations
-import cv2 # Typically used for image/video processing
 from tqdm import tqdm
 # Assuming your custom modules like video_loader, obj_detect, camera are in the PYTHONPATH
 # from video_loader import read_and_process, StreamInterface
@@ -221,7 +219,7 @@ def augment_landmarks(landmarks_df, augmentation_factor=3):
     augmented_data_list = [] # Use a list of dicts for easier DataFrame creation
 
     print("Augmenting landmark data...")
-    for idx, row in tqdm(landmarks_df.iterrows(), total=len(landmarks_df)):
+    for idx, row in landmarks_df.iterrows():
         video_id = row['video_id']
         label = row['label']
        
@@ -323,7 +321,7 @@ def prepare_sequences(landmarks_dataframe, sequence_length=14, include_pairwise=
 
     print(f"Preparing sequences. Expected features per frame: {expected_features_per_frame}")
 
-    for idx, row in tqdm(landmarks_dataframe.iterrows(), total=len(landmarks_dataframe)):
+    for idx, row in landmarks_dataframe.iterrows():
         video_id = row['video_id']
         label = row['label']
 
