@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
 # Assuming your custom modules like video_loader, obj_detect, camera are in the PYTHONPATH
 # from video_loader import read_and_process, StreamInterface
 # from obj_detect import Landmark_Creator
