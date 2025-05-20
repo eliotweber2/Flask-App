@@ -5,6 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Language Interpreter</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        /* Optional: Add some specific styling for live results if needed */
+        .results-container {
+            min-height: 150px; /* Ensure it has some height */
+            max-height: 300px; /* Add a max height for scrolling */
+            overflow-y: auto; /* Enable vertical scroll if content overflows */
+            border: 1px solid #eee; /* Make it more visible */
+        }
+        .interpretation-text {
+            padding: 5px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .interpretation-text:last-child {
+            border-bottom: none;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -26,9 +42,9 @@
             <div class="interpreter-options">
                 <div class="option-card">
                     <h3>Upload Video</h3>
-                    <form method="POST" enctype="multipart/form-data">
+                    <form method="POST" action="{{ url_for('interpreter_page') }}" enctype="multipart/form-data">
                         <div class="file-input-container">
-                            <input type="file" id="video" name="video" accept="video/*">
+                            <input type="file" id="video" name="video" accept="video/*" required>
                             <label for="video" class="file-label">Choose Video</label>
                         </div>
                         <button type="submit" class="button">Process Video</button>
@@ -38,8 +54,7 @@
                 <div class="option-card">
                     <h3>Use Live Camera</h3>
                     <div class="camera-container">
-                        <video id="webcam" autoplay playsinline></video>
-                        <button id="start-camera" class="button">Start Camera</button>
+                        <video id="webcam" autoplay playsinline muted></video> <button id="start-camera" class="button">Start Camera</button>
                         <button id="start-recording" class="button" disabled>Start Interpretation</button>
                         <button id="stop-recording" class="button" disabled>Stop</button>
                     </div>
