@@ -72,7 +72,7 @@ nav ul li a.active {
 .button {
     display: inline-block;
     background-color: var(--primary-color);
-    color: white;
+    color: gray;
     padding: 10px 20px;
     border-radius: var(--border-radius);
     text-decoration: none;
