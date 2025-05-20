@@ -5,8 +5,6 @@ import pandas as pd
 import cv2 # Needed for video processing
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Masking, LSTM, Dense, Dropout, Bidirectional
-from tensorflow.keras.utils import to_categorical
-import tensorflow as tf # Ensure tensorflow is imported
 
 # Import functions from your data_processing script
 import data_processing
