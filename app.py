@@ -20,7 +20,7 @@ NUM_CLASSES = len(LABELS)
 INT_TO_LABEL = {i: label for i, label in enumerate(LABELS)}
 
 # Load the trained model (architecture from paste.py)
-def load_sign_language_model(model_path='model/sign_language_model.h5'):
+def load_sign_language_model(model_path='sign_language_model.h5'):
     model = Sequential()
     model.add(Masking(mask_value=0.0, input_shape=(SEQUENCE_LENGTH, NUM_FEATURES)))
     model.add(Bidirectional(LSTM(units=64, return_sequences=True)))
