@@ -2,97 +2,22 @@ from flask import Flask, render_template, request, jsonify
 import os
 import numpy as np
 import pandas as pd
-import cv2 # Needed for video processing
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Masking, LSTM, Dense, Dropout, Bidirectional
 
 # Import functions from your data_processing script
 import data_processing
+import get_prediction
+
+SEQUENCE_LENGTH = 14  # Should match what the model was trained on
+NUM_FEATURES = 93
+LABELS = ["Hello", "Thank you", "Yes", "No", "Please", "Sorry", "Good", "Bye"] # Example labels
+INT_TO_LABEL = {i: label for i, label in enumerate(LABELS)}
+
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-SEQUENCE_LENGTH = 14  # Should match what the model was trained on
-NUM_FEATURES = 93     # (21 landmarks * 3 coords) + 30 pairwise features (15 dist + 15 angles)
-                        # Adjust if your feature extraction is different (e.g., no pairwise: 63)
-LABELS = ["Hello", "Thank you", "Yes", "No", "Please", "Sorry", "Good", "Bye"] # Example labels
-NUM_CLASSES = len(LABELS)
-INT_TO_LABEL = {i: label for i, label in enumerate(LABELS)}
 
-# Load the trained model (architecture from paste.py)
-def load_sign_language_model(model_path='sign_language_model.h5'):
-    model = Sequential()
-    model.add(Masking(mask_value=0.0, input_shape=(SEQUENCE_LENGTH, NUM_FEATURES)))
-    model.add(Bidirectional(LSTM(units=64, return_sequences=True)))
-    model.add(Dropout(0.3))
-    model.add(Bidirectional(LSTM(units=32)))
-    model.add(Dropout(0.3))
-    model.add(Dense(units=32, activation='relu'))
-    model.add(Dense(NUM_CLASSES, activation='softmax'))
-
-    if os.path.exists(model_path):
-        try:
-            model.load_weights(model_path)
-            print(f"Model loaded successfully from {model_path}")
-        except Exception as e:
-            print(f"Error loading model weights: {e}. Using uninitialized model.")
-    else:
-        print(f"Warning: Model file not found at {model_path}. Using uninitialized model.")
-    
-    # Compile the model - necessary even for inference if loaded this way without optimizer state
-    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-    return model
-
-model = load_sign_language_model()
-
-# --- Placeholder for Landmark Extraction ---
-# In a real app, this would use a library like MediaPipe to process video frames
-def simulate_landmark_extraction(num_frames, sequence_length):
-    """
-    Simulates extracting landmarks for a number of frames.
-    Returns data in the list-of-dictionaries format that prepare_sequences can use after parsing.
-    Each frame dictionary should represent landmarks for that frame.
-    """
-    all_frames_landmarks = []
-    for _ in range(num_frames):
-        # Simulate landmarks for one frame (e.g., one hand, 21 landmarks)
-        # Format: {'result': 'DETECTION_SUCCESS', 'landmarks': [ [[id,x,y,z], ...], ... ]}
-        # For simplicity, creating dummy landmarks
-        hand_landmarks = []
-        for i in range(21): # 21 landmarks per hand
-            hand_landmarks.append([i, np.random.rand(), np.random.rand(), np.random.rand()])
-        
-        # Simulate one or two hands randomly
-        num_hands = np.random.randint(1, 3)
-        current_frame_hands_data = [hand_landmarks for _ in range(num_hands)]
-
-        if current_frame_hands_data:
-            all_frames_landmarks.append({
-                'result': 'DETECTION_SUCCESS',
-                'landmarks': current_frame_hands_data
-            })
-        else:
-             all_frames_landmarks.append({'result': 'DETECTION_FAILURE', 'landmarks': []})
-
-    # Ensure the sequence length matches what's needed, pad if necessary
-    # data_processing.pad_seq expects a list of frames
-    if len(all_frames_landmarks) < sequence_length:
-        all_frames_landmarks = data_processing.pad_seq(all_frames_landmarks, sequence_length)
-    
-    return all_frames_landmarks[:sequence_length] # Return only the required sequence length
-
-def process_video_file_to_landmarks(video_path, sequence_length):
-    """
-    Placeholder: Simulates extracting landmarks from a video file.
-    In a real scenario, you'd use OpenCV to read frames and a landmark detector.
-    """
-    cap = cv2.VideoCapture(video_path)
-    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    cap.release()
-    print(f"Simulating landmark extraction for video {video_path} with approx {frame_count} frames.")
-    # For this simulation, we just generate a fixed number of landmark sets based on sequence_length
-    # A real implementation would extract from actual video frames.
-    return simulate_landmark_extraction(max(frame_count, sequence_length), sequence_length)
+model = get_prediction.load_sign_language_model('sign_language_model_Attention_LSTM.h5')
 
 @app.route("/")
 def home():
@@ -113,7 +38,7 @@ def interpreter_page():
                 
                 # 1. Placeholder: Extract Landmarks from video file
                 # This returns a list of frame landmark dicts
-                landmark_frames_list = process_video_file_to_landmarks(video_path, SEQUENCE_LENGTH)
+                landmark_frames_list = get_prediction.process_video_file_to_landmarks(video_path)
                 
                 if not landmark_frames_list:
                     text_output = "Could not extract landmarks from video."

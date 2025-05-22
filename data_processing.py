@@ -26,9 +26,9 @@ def parse_landmarks(landmarks_str):
             parsed_hands_in_frame = []
 
             for hand_idx, hand_str in enumerate(hands):
-                if not hand_str:
+                if not hand_str:  
                     continue
-
+  
                 landmarks = hand_str.split('||')
                 parsed_landmarks_in_hand = []
 
