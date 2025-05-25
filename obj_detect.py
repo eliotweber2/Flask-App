@@ -1,13 +1,11 @@
 from cv2 import imread, cvtColor, COLOR_BGR2RGB
-import mediapipe as mp
-import numpy as np
-from PIL import Image
+from mediapipe import solutions
 
 MIN_HANDS = 1
 
 class Landmark_Creator:
     def __init__(self):
-        self.hands = mp.solutions.hands.Hands(
+        self.hands = solutions.hands.Hands(
             static_image_mode=False,
             max_num_hands=2,
             min_detection_confidence=0.5,

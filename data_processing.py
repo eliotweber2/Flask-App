@@ -1,5 +1,5 @@
-import numpy as np
-import pandas as pd
+from numpy import array, linalg, sqrt, random
+from pandas import DataFrame
 # Assuming your custom modules like video_loader, obj_detect, camera are in the PYTHONPATH
 # from video_loader import read_and_process, StreamInterface
 # from obj_detect import Landmark_Creator
@@ -114,7 +114,7 @@ def normalize_landmarks_enhanced(landmarks_data_frame): # landmarks_data_frame i
             continue # Move to the next hand in the frame
 
         # Calculate hand scale (distance between index and pinky MCP)
-        scale = np.sqrt(
+        scale = sqrt(
             (index_mcp[0] - pinky_mcp[0])**2 +
             (index_mcp[1] - pinky_mcp[1])**2 +
             (index_mcp[2] - pinky_mcp[2])**2
@@ -166,7 +166,7 @@ def calculate_pairwise_features(normalized_landmarks_data): # normalized_landmar
        
         for point in hand_normalized: # point is [id, x, y, z]
             if point[0] in key_points_indices:
-                key_coords[point[0]] = np.array(point[1:4]) # Store as numpy array for easier math
+                key_coords[point[0]] = array(point[1:4]) # Store as numpy array for easier math
 
         # Skip if not all key points are present for this hand
         if len(key_coords) != len(key_points_indices):
@@ -181,7 +181,7 @@ def calculate_pairwise_features(normalized_landmarks_data): # normalized_landmar
             for j in range(i + 1, len(key_points_indices)):
                 p1_idx, p2_idx = key_points_indices[i], key_points_indices[j]
                 if p1_idx in key_coords and p2_idx in key_coords:
-                    dist = np.linalg.norm(key_coords[p1_idx] - key_coords[p2_idx])
+                    dist = linalg.norm(key_coords[p1_idx] - key_coords[p2_idx])
                     hand_features.append(dist)
                 else: # If a key point is missing, append a default (e.g., 0) for this distance
                     hand_features.append(0.0)
@@ -195,7 +195,7 @@ def calculate_pairwise_features(normalized_landmarks_data): # normalized_landmar
                 if finger_tip_idx in key_coords:
                     finger_tip_coord = key_coords[finger_tip_idx]
                     vec = finger_tip_coord - wrist_coord
-                    magnitude = np.linalg.norm(vec)
+                    magnitude = linalg.norm(vec)
                     if magnitude > 1e-9: # Avoid division by zero
                         cos_angles = vec / magnitude
                         hand_features.extend(cos_angles.tolist()) # Add cos_x, cos_y, cos_z
@@ -255,13 +255,13 @@ def augment_landmarks(landmarks_df, augmentation_factor=3):
                 new_frame_dict = {'result': 'DETECTION_SUCCESS', 'landmarks': []}
                 for hand_landmarks_list in frame_dict['landmarks']: # hand_landmarks_list is List[[id,x,y,z], ...]
                     augmented_hand = []
-                    noise_scale = 0.02 * (np.random.rand() + 0.5) * (i + 1) # Slightly randomized noise scale
+                    noise_scale = 0.02 * (random.rand() + 0.5) * (i + 1) # Slightly randomized noise scale
                     for point in hand_landmarks_list:
                         point_id = point[0]
                         # Add random noise to coordinates
-                        x = point[1] + np.random.normal(0, noise_scale * abs(point[1]) if abs(point[1]) > 1e-3 else noise_scale)
-                        y = point[2] + np.random.normal(0, noise_scale * abs(point[2]) if abs(point[2]) > 1e-3 else noise_scale)
-                        z = point[3] + np.random.normal(0, noise_scale * abs(point[3]) if abs(point[3]) > 1e-3 else noise_scale)
+                        x = point[1] + random.normal(0, noise_scale * abs(point[1]) if abs(point[1]) > 1e-3 else noise_scale)
+                        y = point[2] + random.normal(0, noise_scale * abs(point[2]) if abs(point[2]) > 1e-3 else noise_scale)
+                        z = point[3] + random.normal(0, noise_scale * abs(point[3]) if abs(point[3]) > 1e-3 else noise_scale)
                         augmented_hand.append([point_id, x, y, z])
                     new_frame_dict['landmarks'].append(augmented_hand)
                 augmented_frames_for_one_video.append(new_frame_dict)
@@ -273,12 +273,12 @@ def augment_landmarks(landmarks_df, augmentation_factor=3):
                     'landmarks': augmented_frames_for_one_video # This is List[Dict]
                 })
    
-    return pd.DataFrame(augmented_data_list)
+    return DataFrame(augmented_data_list)
 
 # Helper function to pad sequences of landmark frames (original user function)
 def pad_seq(sequence_of_frames, desired_sequence_length):  
     """Pads a sequence of frame landmark dictionaries with dummy frames."""
-    # A dummy frame with plausible structure for normalize_landmarks_enhanced.
+    # A dummy frame with plausible structure for normalize_landmarks_enhanced.s
     # It has one hand with 21 landmarks, all at [0,0,0,0].
     dummy_hand = [[i, 0.0, 0.0, 0.0] for i in range(21)]
     dummy_frame = {
@@ -415,7 +415,7 @@ def prepare_sequences(landmarks_dataframe, sequence_length=14, include_pairwise=
                 # print(f"Warning: Sequence for {video_id} window {i} ended up with length {len(single_sequence_feature_vectors)} instead of {sequence_length}. Discarding.")
 
 
-    return np.array(all_sequences), np.array(all_labels)
+    return array(all_sequences), array(all_labels)
 
 
 # --- Example Usage ---
@@ -447,7 +447,7 @@ if __name__ == '__main__':
             "0.1|0.1|0.1"               # Malformed/very short video string for testing parse robustness
         ]
     }
-    raw_df = pd.DataFrame(data)
+    raw_df = DataFrame(data)
 
     print("--- Original DataFrame ---")
     print(raw_df)
@@ -498,7 +498,7 @@ if __name__ == '__main__':
         # First, create a mapping from string labels to integers
         unique_labels = sorted(list(set(y)))
         label_to_int = {label: i for i, label in enumerate(unique_labels)}
-        y_int = np.array([label_to_int[label] for label in y])
+        y_int = array([label_to_int[label] for label in y])
         y_one_hot = to_categorical(y_int, num_classes=len(unique_labels))
         num_classes = y_one_hot.shape[1]
 

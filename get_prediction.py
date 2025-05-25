@@ -1,45 +1,54 @@
-from tensorflow.keras.models import Sequential
+from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.layers import Masking, LSTM, Dense, Dropout, Bidirectional
+from keras.config import enable_unsafe_deserialization
+from sklearn.preprocessing import LabelEncoder
+from pickle import load
 from os import path
-from numpy import random
+from numpy import argmax
+from pandas import DataFrame
 
-import data_processing
 import video_loader
 import obj_detect
+import data_processing
+import create_models
 
 from cv2 import VideoCapture, CAP_PROP_FRAME_COUNT
 
-detector = obj_detect.Landmark_Creator()
-
-SEQUENCE_LENGTH = 14  # Should match what the model was trained on
+SEQUENCE_LENGTH = 9  # Should match what the model was trained on
 NUM_FEATURES = 93     # (21 landmarks * 3 coords) + 30 pairwise features (15 dist + 15 angles)
                         # Adjust if your feature extraction is different (e.g., no pairwise: 63)
-LABELS = ["Hello", "Thank you", "Yes", "No", "Please", "Sorry", "Good", "Bye"] # Example labels
-NUM_CLASSES = len(LABELS)
 
-# Load the trained model (architecture from paste.py)
-def load_sign_language_model(model_path='sign_language_model_Attention_LSTM.h5'):
-    model = Sequential()
-    model.add(Masking(mask_value=0.0, input_shape=(SEQUENCE_LENGTH, NUM_FEATURES)))
-    model.add(Bidirectional(LSTM(units=64, return_sequences=True)))
-    model.add(Dropout(0.3))
-    model.add(Bidirectional(LSTM(units=32)))
-    model.add(Dropout(0.3))
-    model.add(Dense(units=32, activation='relu'))
-    model.add(Dense(NUM_CLASSES, activation='softmax'))
+with open('model/label_encoder.pkl', 'rb') as f:
+    label_encoder = load(f)
 
-    if path.exists(model_path):
-        try:
-            model.load_weights(model_path)
-            print(f"Model loaded successfully from {model_path}")
-        except Exception as e:
-            print(f"Error loading model weights: {e}. Using uninitialized model.")
-    else:
-        print(f"Warning: Model file not found at {model_path}. Using uninitialized model.")
+NUM_CLASSES = len(label_encoder.classes_)  # Number of classes in the dataset
+
+def predict(video_path, user_id):
+    landmarks = process_video_file_to_landmarks(video_path)
+    if landmarks == '':
+        return "Could not extract landmarks from video."
     
-    # Compile the model - necessary even for inference if loaded this way without optimizer state
-    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-    return model
+    df_data = [{'video_id': f'live_{user_id}', 'label': 'unknown', 'landmarks': landmarks}]
+    landmarks_df = DataFrame(df_data)
+    
+    X, _ = data_processing.prepare_sequences(
+            landmarks_df, 
+            sequence_length=SEQUENCE_LENGTH, 
+            include_pairwise=True,
+            pad_value=0.0
+           )
+    
+    for model in [attention_model, cnn_model, transformer_model]:
+        # Prepare the data for prediction
+        
+        # Make predictions
+        predictions = model.predict(X)
+        
+        # Decode the predictions
+        predicted_class = argmax(predictions, axis=1)
+        predicted_label = label_encoder.inverse_transform(predicted_class)
+        
+        return predicted_label[0]
 
 def format_landmarks(frame_lst):
     formatted_landmarks = '||||'.join(
@@ -70,3 +79,11 @@ def process_video_file_to_landmarks(video_path):
     video_loader.read_and_process(lambda: create_stream_interface(video_path), lambda frame: process_frame(frame),n_skip=1)  
 
     return format_landmarks(landmark_lst)
+
+enable_unsafe_deserialization()
+
+attention_model = create_models.create_attention_model(NUM_CLASSES, SEQUENCE_LENGTH, NUM_FEATURES)
+cnn_model = create_models.create_cnn_lstm_model(NUM_CLASSES, SEQUENCE_LENGTH, NUM_FEATURES)
+transformer_model = create_models.create_transformer_model(NUM_CLASSES, SEQUENCE_LENGTH, NUM_FEATURES)
+
+detector = obj_detect.Landmark_Creator()
