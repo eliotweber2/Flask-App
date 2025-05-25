@@ -1,7 +1,11 @@
 from flask import Flask, render_template, request, jsonify
-from os import makedirs, path
+from os import makedirs, path, rename, remove
 import numpy as np
 from pandas import DataFrame
+from cv2 import VideoWriter, imdecode, IMREAD_COLOR, VideoWriter_fourcc, VideoCapture, CAP_PROP_FRAME_COUNT
+from base64 import b64decode
+from glob import glob
+#from werkzeug.middleware.profiler import ProfilerMiddleware
 
 # Import functions from your data_processing script
 import data_processing
@@ -9,7 +13,18 @@ import get_prediction
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
+#app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions=[30])
 makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+files = glob('./slices/*')
+for f in files:
+    remove(f)
+
+files = glob(path.join(app.config['UPLOAD_FOLDER'], '*'))
+for f in files:
+    remove(f)
+
+SEQUENCE_LENGTH = 9  # Should match what the model was trained on
 
 @app.route("/")
 def home():
@@ -27,8 +42,10 @@ def interpreter_page():
                 filename = video_file.filename
                 video_path = path.join(app.config['UPLOAD_FOLDER'], filename)
                 video_file.save(video_path)
+
+                slice_video(filename)  # Slice the video if needed
                 
-                text_output = get_prediction.predict(video_path, 'default_user')
+                text_output = get_prediction.predict(filename, 'default_user')
                 
                 is_processing = True
                 # Clean up uploaded file
@@ -41,10 +58,6 @@ def interpreter_page():
                            text_output=text_output,
                            is_processing=is_processing)
 
-# This session store is a simplified way to handle frame buffers for multiple users.
-# In a production app, use a more robust solution (e.g., Redis, Flask-Session with server-side storage).
-user_frame_buffers = {} 
-
 @app.route("/interpret_live_frames", methods=['POST'])
 def interpret_live_frames():
     data = request.get_json()
@@ -52,21 +65,58 @@ def interpret_live_frames():
     print(frames_base64)
     user_id = data.get('userId', 'default_user') # Simple user ID for buffer management
 
+    video_path = path.join(app.config['UPLOAD_FOLDER'], f"live_{user_id}.mp4")
     if not frames_base64 or len(frames_base64) == 0:
         return jsonify({'text': "No frames received."}), 400
     
-    
+    frames = []
+    for frame_b64 in frames_base64:
+        frame_data = b64decode(frame_b64)
+        np_arr = np.frombuffer(frame_data, np.uint8)
+        img = imdecode(np_arr, IMREAD_COLOR)
+        if img is not None:
+            frames.append(img)
 
-    # --- Placeholder for actual live frame to landmark conversion ---
-    # The client-side camera.js is set to send SEQUENCE_LENGTH frames.
-    
-    # This function needs to be adapted if you send frames one by one and buffer on server
-    # For now, assume `frames_base64` corresponds to one sequence worth of visual data
+    height, width, layers = frames[0].shape
+    fps = 30
+
+    fourcc = VideoWriter_fourcc(*'mp4v')
+    out = VideoWriter(video_path, fourcc, fps, (width, height))
+    for frame in frames:
+        out.write(frame)
+    out.release()
+
     print(f"Received {len(frames_base64)} frames for live interpretation from user {user_id}.")
+    slice_video(video_path)
 
     text = get_prediction.predict(video_path, user_id)
         
     return jsonify({'text': text})
 
+def slice_video(video_path):
+    video = VideoCapture(video_path)
+
+    if not video.get(CAP_PROP_FRAME_COUNT) <= SEQUENCE_LENGTH:
+        offsets = range(0, int(video.get(CAP_PROP_FRAME_COUNT)) - SEQUENCE_LENGTH + 1)
+        for offset in offsets:
+            out = VideoWriter(
+                f'slices/slice_{video_path}_{offset}.mp4',
+                VideoWriter_fourcc(*'mp4v'),
+                30,
+                (int(video.get(3)), int(video.get(4)))
+            )
+            video.set(1, offset)
+            for frame in range(SEQUENCE_LENGTH):
+                ret, frame = video.read()
+                if not ret:
+                    break
+                out.write(frame)
+            out.release()
+
+        return
+            
+    rename(path.join(app.config['UPLOAD_FOLDER'], video_path), 
+              f'slices/slice_{video_path}_0.mp4')
+    
 if __name__ == "__main__":
     app.run(debug=True)
