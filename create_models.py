@@ -47,10 +47,8 @@ def create_attention_model(n_classes, sequence_length, n_features):
     return model
 # Create CNN-LSTM model for ensemble
 def create_cnn_lstm_model(n_classes, sequence_length, n_features):
-    print("Input shape:", (sequence_length, n_features))
     """Create a CNN-LSTM model for the ensemble."""
     input_layer = Input(shape=(sequence_length, n_features))
-    print('Input shape of layer:', input_layer.shape)
     # CNN layers
     x = Conv1D(filters=64, kernel_size=3, padding='same', activation='relu')(input_layer)
     x = MaxPooling1D(pool_size=2)(x)

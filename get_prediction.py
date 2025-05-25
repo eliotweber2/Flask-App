@@ -83,7 +83,10 @@ def process_video_file_to_landmarks(video_path):
 enable_unsafe_deserialization()
 
 attention_model = create_models.create_attention_model(NUM_CLASSES, SEQUENCE_LENGTH, NUM_FEATURES)
+print("Attention model created successfully.")
 cnn_model = create_models.create_cnn_lstm_model(NUM_CLASSES, SEQUENCE_LENGTH, NUM_FEATURES)
+print("CNN-LSTM model created successfully.")
 transformer_model = create_models.create_transformer_model(NUM_CLASSES, SEQUENCE_LENGTH, NUM_FEATURES)
+print("Transformer model created successfully.")
 
 detector = obj_detect.Landmark_Creator()
