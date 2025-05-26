@@ -27,6 +27,7 @@ print(label_encoder.classes_)  # Print the classes for debugging
 NUM_CLASSES = len(label_encoder.classes_)  # Number of classes in the dataset
 
 def predict(video_path, user_id):
+    print(f"Predicting for video: {video_path} for user: {user_id}")
     predictions = []
     landmarks = process_video_file_to_landmarks(video_path)
         

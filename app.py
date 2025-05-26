@@ -1,7 +1,3 @@
-import tracemalloc
-
-tracemalloc.start()
-
 from flask import Flask, render_template, request, jsonify
 from os import makedirs, path
 import numpy as np
@@ -10,10 +6,6 @@ from pandas import DataFrame
 
 # Import functions from your data_processing script
 import get_prediction
-
-print('hi',tracemalloc.get_traced_memory())
-
-tracemalloc.stop()
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
