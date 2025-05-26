@@ -350,5 +350,4 @@ def prepare_sequences(landmarks_dataframe, sequence_length=14, include_pairwise=
                 # This case should ideally not be hit if windowing and pad_seq are correct.
                 # print(f"Warning: Sequence for {video_id} window {i} ended up with length {len(single_sequence_feature_vectors)} instead of {sequence_length}. Discarding.")
 
-
     return array(all_sequences), array(all_labels)  
