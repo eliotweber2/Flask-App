@@ -6,4 +6,4 @@ opencv-python
 tensorflow
 scikit-learn
 keras
-mediapipe
+mediapipe.solutions

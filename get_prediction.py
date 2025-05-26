@@ -3,7 +3,7 @@ from tensorflow.keras.layers import Masking, LSTM, Dense, Dropout, Bidirectional
 from keras.config import enable_unsafe_deserialization
 from sklearn.preprocessing import LabelEncoder
 from pickle import load
-from os import path
+from os import path, listdir, remove
 from numpy import argmax
 from pandas import DataFrame
 from memory_profiler import profile
@@ -13,7 +13,7 @@ import obj_detect
 import data_processing
 import create_models
 
-from cv2 import VideoCapture, CAP_PROP_FRAME_COUNT
+from cv2 import VideoCapture, VideoWriter, VideoWriter_fourcc, CAP_PROP_FRAME_COUNT
 
 SEQUENCE_LENGTH = 9  # Should match what the model was trained on
 NUM_FEATURES = 93     # (21 landmarks * 3 coords) + 30 pairwise features (15 dist + 15 angles)
@@ -22,34 +22,51 @@ NUM_FEATURES = 93     # (21 landmarks * 3 coords) + 30 pairwise features (15 dis
 with open('model/label_encoder.pkl', 'rb') as f:
     label_encoder = load(f)
 
+print(label_encoder.classes_)  # Print the classes for debugging
+
 NUM_CLASSES = len(label_encoder.classes_)  # Number of classes in the dataset
 
-def predict(video_path, user_id):
-    landmarks = process_video_file_to_landmarks(video_path)
-    if landmarks == '':
-        return "Could not extract landmarks from video."
-    
-    df_data = [{'video_id': f'live_{user_id}', 'label': 'unknown', 'landmarks': landmarks}]
-    landmarks_df = DataFrame(df_data)
-    
-    X, _ = data_processing.prepare_sequences(
-            landmarks_df, 
-            sequence_length=SEQUENCE_LENGTH, 
-            include_pairwise=True,
-            pad_value=0.0
-           )
-    
-    for model in [attention_model, cnn_model, transformer_model]:
-        # Prepare the data for prediction
+def predict(filename, user_id):
+    slices = [slice for slice in listdir('slices') if filename in slice]
+    predicted_labels = []
+    for slice in slices:
+        slice_path = path.join("slices", slice)
+
+                    # Save or process the frame as needed
+        landmarks = process_video_file_to_landmarks(slice_path)
+        if landmarks == '':
+            continue
         
-        # Make predictions
-        predictions = model.predict(X)
+        df_data = [{'video_id': f'live_{user_id}', 'label': 'unknown', 'landmarks': landmarks}]
+        landmarks_df = DataFrame(df_data)
+
+        if path.exists(slice_path):
+            remove(slice_path)
         
-        # Decode the predictions
-        predicted_class = argmax(predictions, axis=1)
-        predicted_label = label_encoder.inverse_transform(predicted_class)
-        
-        return predicted_label[0]
+        X, _ = data_processing.prepare_sequences(
+                landmarks_df, 
+                sequence_length=SEQUENCE_LENGTH, 
+                include_pairwise=True,
+                pad_value=0.0
+            )
+                
+        for model in [attention_model, cnn_model, transformer_model]:
+            # Prepare the data for prediction
+            
+            # Make predictions
+            predictions = model.predict(X)
+            
+            # Decode the predictions
+            predicted_class = argmax(predictions, axis=1)
+            predicted_label = label_encoder.inverse_transform(predicted_class)
+            
+            predicted_labels.append(predicted_label[0])
+
+            print(f"Predicted label for {slice}: {predicted_label[0]}")
+
+    print(f"Predictions for {filename}: {predictions}")   
+    
+    return max(set(predicted_labels), key=predicted_labels.count) if len(predicted_labels) > 0 else "No predictions made."
 
 def format_landmarks(frame_lst):
     formatted_landmarks = '||||'.join(
@@ -90,4 +107,4 @@ print("CNN-LSTM model created successfully.")
 transformer_model = create_models.create_transformer_model(NUM_CLASSES, SEQUENCE_LENGTH, NUM_FEATURES)
 print("Transformer model created successfully.")
 
-detector = obj_detect.Landmark_Creator()
+detector = obj_detect.Landmark_Creator() 
