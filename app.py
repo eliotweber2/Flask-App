@@ -1,17 +1,26 @@
+import tracemalloc
+
+tracemalloc.start()
+
 from flask import Flask, render_template, request, jsonify
 from os import makedirs, path
 import numpy as np
 from pandas import DataFrame
+from memory_profiler import profile
 
 # Import functions from your data_processing script
-import data_processing
 import get_prediction
+
+print('hi',tracemalloc.get_traced_memory())
+
+tracemalloc.stop()
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 @app.route("/")
+@profile
 def home():
     return render_template("index.html")
 
