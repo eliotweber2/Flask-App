@@ -6,7 +6,7 @@ from flask import Flask, render_template, request, jsonify
 from os import makedirs, path
 import numpy as np
 from pandas import DataFrame
-from memory_profiler import profile
+#from memory_profiler import profile
 
 # Import functions from your data_processing script
 import get_prediction
@@ -20,7 +20,7 @@ app.config['UPLOAD_FOLDER'] = 'uploads'
 makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 @app.route("/")
-@profile
+#@profile
 def home():
     return render_template("index.html")
 
@@ -49,33 +49,6 @@ def interpreter_page():
     return render_template("interpreter.html", 
                            text_output=text_output,
                            is_processing=is_processing)
-
-# This session store is a simplified way to handle frame buffers for multiple users.
-# In a production app, use a more robust solution (e.g., Redis, Flask-Session with server-side storage).
-user_frame_buffers = {} 
-
-@app.route("/interpret_live_frames", methods=['POST'])
-def interpret_live_frames():
-    data = request.get_json()
-    frames_base64 = data.get('frames') # Expecting a list of base64 encoded frames
-    print(frames_base64)
-    user_id = data.get('userId', 'default_user') # Simple user ID for buffer management
-
-    if not frames_base64 or len(frames_base64) == 0:
-        return jsonify({'text': "No frames received."}), 400
-    
-    
-
-    # --- Placeholder for actual live frame to landmark conversion ---
-    # The client-side camera.js is set to send SEQUENCE_LENGTH frames.
-    
-    # This function needs to be adapted if you send frames one by one and buffer on server
-    # For now, assume `frames_base64` corresponds to one sequence worth of visual data
-    print(f"Received {len(frames_base64)} frames for live interpretation from user {user_id}.")
-
-    text = get_prediction.predict(video_path, user_id)
-        
-    return jsonify({'text': text})
 
 if __name__ == "__main__":
     app.run(debug=True)

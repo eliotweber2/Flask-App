@@ -6,7 +6,7 @@ from pickle import load
 from os import path, listdir, remove
 from numpy import argmax
 from pandas import DataFrame
-from memory_profiler import profile
+#from memory_profiler import profile
 
 import video_loader
 import obj_detect
