@@ -6,7 +6,7 @@ from tensorflow.keras.layers import (
 
 from tensorflow import squeeze, expand_dims, reduce_sum
 from tensorflow.nn import softmax
-from memory_profiler import profile
+#from memory_profiler import profile
 
 def create_attention_model(n_classes, sequence_length, n_features):
     """Create an enhanced model architecture with attention mechanism for higher accuracy."""
