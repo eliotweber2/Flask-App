@@ -1,9 +1,6 @@
-from tensorflow.keras.models import Sequential, load_model
-from tensorflow.keras.layers import Masking, LSTM, Dense, Dropout, Bidirectional
 from keras.config import enable_unsafe_deserialization
-from sklearn.preprocessing import LabelEncoder
 from pickle import load
-from os import path, listdir, remove
+from os import path
 from numpy import argmax
 from pandas import DataFrame
 #from memory_profiler import profile
@@ -13,7 +10,7 @@ import obj_detect
 import data_processing
 import create_models
 
-from cv2 import VideoCapture, VideoWriter, VideoWriter_fourcc, CAP_PROP_FRAME_COUNT
+from cv2 import VideoCapture
 
 SEQUENCE_LENGTH = 9  # Should match what the model was trained on
 NUM_FEATURES = 93     # (21 landmarks * 3 coords) + 30 pairwise features (15 dist + 15 angles)

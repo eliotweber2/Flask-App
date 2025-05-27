@@ -1,5 +1,4 @@
-from numpy import array, linalg, sqrt, random
-from pandas import DataFrame
+from numpy import array, linalg, sqrt
 # Assuming your custom modules like video_loader, obj_detect, camera are in the PYTHONPATH
 # from video_loader import read_and_process, StreamInterface
 # from obj_detect import Landmark_Creator

@@ -1,7 +1,5 @@
 from flask import Flask, render_template, request, jsonify
 from os import makedirs, path
-import numpy as np
-from pandas import DataFrame
 #from memory_profiler import profile
 
 # Import functions from your data_processing script
