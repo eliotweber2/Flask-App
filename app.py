@@ -29,13 +29,15 @@ def interpreter_page():
                 video_path = path.join(app.config['UPLOAD_FOLDER'], video_file.filename)
                 video_file.save(video_path)
                 print("File saved.")
-                return redirect(url_for('interpreter_page', text_output='', is_processing=is_processing))
+                return redirect(url_for('interpreter_page', text_output='', is_processing=is_processing, filename=video_file.filename))
+                # Process the video file
                 
                 # Clean up uploaded file
                 # os.remove(video_path) # Optional: remove after processing
             else:
                 text_output = "No video file selected."
                 is_processing = True
+    print("Processing video if filename is provided")
     filename = request.args.get('filename')
     if filename:
         video_path = path.join(app.config['UPLOAD_FOLDER'], filename)
