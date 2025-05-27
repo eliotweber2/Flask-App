@@ -14,7 +14,9 @@ makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 processing_results = {}
 
 def run_prediction(video_path, user, filename):
+    print(f"Running prediction for {filename} by user {user}")
     result = get_prediction.predict(video_path, user)
+    print(f"Prediction result for {filename}: {result}")
     processing_results[filename] = result
 
 @app.route("/")
