@@ -1,8 +1,5 @@
 import numpy as np
 import pandas as pd
-import os  # For file path operations
-import cv2  # For image/video processing (if needed elsewhere)
-from tqdm import tqdm  # For progress bars during loops
 
 def parse_landmarks(landmarks_str):
     """
@@ -232,7 +229,7 @@ def augment_landmarks(landmarks_df, augmentation_factor=3):
     augmented_data_list = []
 
     print("Augmenting landmark data...")
-    for idx, row in tqdm(landmarks_df.iterrows(), total=len(landmarks_df)):
+    for idx, row in landmarks_df.iterrows():
         video_id = row['video_id']
         label = row['label']
         landmarks_input = row['landmarks']
@@ -356,7 +353,7 @@ def prepare_sequences(landmarks_dataframe, sequence_length=14, include_pairwise=
           f"{pairwise_feature_count_per_hand} (pairwise) = {features_per_hand_no_deltas}")
 
     # Iterate over each row (video) in the DataFrame
-    for idx, row in tqdm(landmarks_dataframe.iterrows(), total=len(landmarks_dataframe)):
+    for idx, row in landmarks_dataframe.iterrows():
         video_id = row['video_id']
         label = row['label']
         landmarks_input = row['landmarks']
