@@ -8,4 +8,4 @@ scikit-learn
 keras
 mediapipe
 redis
-celery redis
+celery
