@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for
-from os import makedirs, path, listdir
+from os import makedirs, path, listdir, environ
 from celery import Celery
 #from memory_profiler import profile
 
@@ -16,10 +16,11 @@ if not path.exists(app.config['UPLOAD_FOLDER']):
 processing_results = {}
 
 def make_celery(app):
+    redis_url = environ.get("REDIS_URL")
     celery = Celery(
         app.import_name,
-        backend="redis://red-d0r2flqdbo4c73emjt4g:6379",
-        broker="redis://red-d0r2flqdbo4c73emjt4g:6379"
+        backend=redis_url,
+        broker=redis_url
     )
     celery.conf.update(app.config)
     return celery
