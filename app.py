@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 from os import makedirs, path
 #from memory_profiler import profile
 
@@ -27,7 +27,7 @@ def interpreter_page():
                 filename = video_file.filename
                 video_path = path.join(app.config['UPLOAD_FOLDER'], filename)
                 video_file.save(video_path)
-                
+                return redirect(url_for('interpreter_page', processing='1', filename=filename))
                 text_output = get_prediction.predict(video_path, 'default_user')
                 
                 is_processing = True
