@@ -8,7 +8,7 @@ services:
       - key: FLASK_ENV
         value: production
       - key: REDIS_URL
-        value: redis://red-d0r2flqdbo4c73emjt4g:6379
+        value: redis://red-d0r4s4qdbo4c73a1e240:6379
     disk:
       name: data-disk
       mountPath: /data
@@ -22,7 +22,7 @@ services:
       - key: FLASK_ENV
         value: production
       - key: REDIS_URL
-        value: redis://red-d0r2flqdbo4c73emjt4g:6379
+        value: redis://red-d0r4s4qdbo4c73a1e240:6379
     disk:
       name: data-disk
       mountPath: /data
