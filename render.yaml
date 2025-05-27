@@ -9,7 +9,7 @@ services:
         value: production
       - key: REDIS_URL
         value: redis://red-d0r2flqdbo4c73emjt4g:6379
-    persistentDisks:
+    disk:
       - name: data-disk
         mountPath: /data
 
@@ -23,10 +23,10 @@ services:
         value: production
       - key: REDIS_URL
         value: redis://red-d0r2flqdbo4c73emjt4g:6379
-    persistentDisks:
+    disk:
       - name: data-disk
         mountPath: /data
 
-disks:
+disk:
   - name: data-disk
     sizeGB: 1
