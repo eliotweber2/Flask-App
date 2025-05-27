@@ -61,6 +61,7 @@ def interpreter_page():
 def check_result():
     filename = request.args.get('filename')
     result = processing_results.get(filename)
+    print(result)
     return jsonify({"ready": result is not None})
 
 if __name__ == "__main__":
