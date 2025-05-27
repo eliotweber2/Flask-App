@@ -27,6 +27,6 @@ services:
       - name: data-disk
         mountPath: /data
 
-persistentDisks:
+disks:
   - name: data-disk
     sizeGB: 1
