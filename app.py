@@ -43,6 +43,7 @@ def interpreter_page():
                 is_processing = True
     print("Processing video if filename is provided")
     filename = request.args.get('filename')
+    print(f"Filename from request: {filename}")
     if filename:
         result = processing_results.get(filename)
         if result is None:
