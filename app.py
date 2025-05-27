@@ -22,6 +22,7 @@ def interpreter_page():
     is_processing = False
     
     if request.method == "POST":
+        print("Received POST request")
         if 'video' in request.files:
             video_file = request.files['video']
             if video_file.filename != '':
