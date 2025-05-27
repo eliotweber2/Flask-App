@@ -56,5 +56,11 @@ def interpreter_page():
                            is_processing=is_processing,
                            filename=filename)
 
+@app.route("/check_result")
+def check_result():
+    filename = request.args.get('filename')
+    result = processing_results.get(filename)
+    return jsonify({"ready": result is not None})
+
 if __name__ == "__main__":
     app.run(debug=True)
