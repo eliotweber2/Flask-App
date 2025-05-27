@@ -25,9 +25,9 @@ def interpreter_page():
         if 'video' in request.files:
             video_file = request.files['video']
             if video_file.filename != '':
-                filename = video_file.filename
-                video_path = path.join(app.config['UPLOAD_FOLDER'], filename)
+                print("Saving file...")
                 video_file.save(video_path)
+                print("File saved.")
                 return redirect(url_for('interpreter_page', processing='1', filename=filename))
                 
                 # Clean up uploaded file
