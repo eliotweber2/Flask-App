@@ -32,6 +32,7 @@ def home():
 @celery.task()
 def run_prediction(video_path, user, filename):
     print(f"Processing video: {video_path} for user: {user}")
+    print(path.exists(video_path))
     result = get_prediction.predict(video_path, user)
     print(f"Processing result for {filename}: {result}")
     processing_results[filename] = result
@@ -49,6 +50,7 @@ def interpreter_page():
                 filename = video_file.filename
                 video_path = path.join(app.config['UPLOAD_FOLDER'], filename)
                 video_file.save(video_path)
+                print(f"Video saved to {video_path}")
                 # Start celery task
                 task = run_prediction.delay(video_path, 'default_user', filename)
                 processing_results[filename] = None  # Mark as processing
