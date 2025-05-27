@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for
-from os import makedirs, path
+from os import makedirs, path, listdir
 from celery import Celery
 #from memory_profiler import profile
 
@@ -33,6 +33,7 @@ def home():
 def run_prediction(video_path, user, filename):
     print(f"Processing video: {video_path} for user: {user}")
     print(path.exists(video_path))
+    print(listdir(app.config['UPLOAD_FOLDER']))
     result = get_prediction.predict(video_path, user)
     print(f"Processing result for {filename}: {result}")
     processing_results[filename] = result
