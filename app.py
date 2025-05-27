@@ -38,7 +38,7 @@ def interpreter_page():
                 video_path = path.join(app.config['UPLOAD_FOLDER'], video_file.filename)
                 video_file.save(video_path)
                 print("File saved.")
-                Thread(target=run_prediction, args=(video_path, 'default_user')).start()
+                Thread(target=run_prediction, args=(video_path, 'default_user',video_file.filename)).start()
                 return redirect(url_for('interpreter_page', text_output='', is_processing=is_processing, filename=video_file.filename))
                 # Process the video file
                 
