@@ -7,6 +7,7 @@ import get_prediction
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 MB limit
 makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 @app.route("/")
