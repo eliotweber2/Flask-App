@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: flask-web
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: FLASK_ENV
+        value: production
+    disks:
+      - name: data-disk
+        mountPath: /data
+
+  - type: worker
+    name: celery-worker
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: celery -A celery_worker.celery worker --loglevel=info --concurrency=1
+    disks:
+      - name: data-disk
+        mountPath: /data
+
+disks:
+  - name: data-disk
+    sizeGB: 10
