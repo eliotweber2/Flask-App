@@ -31,7 +31,9 @@ def home():
 
 @celery.task()
 def run_prediction(video_path, user, filename):
+    print(f"Processing video: {video_path} for user: {user}")
     result = get_prediction.predict(video_path, user)
+    print(f"Processing result for {filename}: {result}")
     processing_results[filename] = result
     return result
 
