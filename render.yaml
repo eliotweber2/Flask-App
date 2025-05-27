@@ -10,8 +10,8 @@ services:
       - key: REDIS_URL
         value: redis://red-d0r2flqdbo4c73emjt4g:6379
     disk:
-      - name: data-disk
-        mountPath: /data
+      name: data-disk
+      mountPath: /data
 
   - type: worker
     name: celery-worker
@@ -24,9 +24,9 @@ services:
       - key: REDIS_URL
         value: redis://red-d0r2flqdbo4c73emjt4g:6379
     disk:
-      - name: data-disk
-        mountPath: /data
+      name: data_disk
+      mountPath: /data
 
-disk:
-  - name: data-disk
-    sizeGB: 1
+disks:
+ -name: data-disk
+ sizeGB: 1
