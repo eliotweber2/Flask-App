@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 from os import makedirs, path
+from threading import Thread
 #from memory_profiler import profile
 
 # Import functions from your data_processing script
@@ -9,6 +10,8 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 MB limit
 makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+processing_results = {}
 
 @app.route("/")
 #@profile
@@ -29,6 +32,7 @@ def interpreter_page():
                 video_path = path.join(app.config['UPLOAD_FOLDER'], video_file.filename)
                 video_file.save(video_path)
                 print("File saved.")
+                Thread(target=get_prediction.predict, args=(video_path, 'default_user')).start()
                 return redirect(url_for('interpreter_page', text_output='', is_processing=is_processing, filename=video_file.filename))
                 # Process the video file
                 
@@ -40,13 +44,17 @@ def interpreter_page():
     print("Processing video if filename is provided")
     filename = request.args.get('filename')
     if filename:
-        video_path = path.join(app.config['UPLOAD_FOLDER'], filename)
-        print(f"Processing video: {video_path}")
-        text_output = get_prediction.predict(video_path, 'default_user')
-        is_processing = True
+        result = processing_results.get(filename)
+        if result is None:
+            is_processing = True
+            text_output = ""
+        else:
+            is_processing = True
+            text_output = result
     return render_template("interpreter.html", 
                            text_output=text_output,
-                           is_processing=is_processing)
+                           is_processing=is_processing,
+                           filename=filename)
 
 if __name__ == "__main__":
     app.run(debug=True)
