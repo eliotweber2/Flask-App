@@ -1,6 +1,16 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 from os import makedirs, path, listdir, environ
 from celery import Celery
+
+import redis
+import os
+
+r = redis.Redis.from_url(os.environ["REDIS_URL"])
+try:
+    r.ping()
+    print("Redis connection successful!")
+except Exception as e:
+    print("Redis connection failed:", e)
 #from memory_profiler import profile
 
 # Import functions from your data_processing script
