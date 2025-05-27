@@ -28,15 +28,18 @@ def interpreter_page():
                 video_path = path.join(app.config['UPLOAD_FOLDER'], filename)
                 video_file.save(video_path)
                 return redirect(url_for('interpreter_page', processing='1', filename=filename))
-                text_output = get_prediction.predict(video_path, 'default_user')
                 
-                is_processing = True
                 # Clean up uploaded file
                 # os.remove(video_path) # Optional: remove after processing
             else:
                 text_output = "No video file selected."
                 is_processing = True
-    
+    filename = request.args.get('filename')
+    if filename:
+        video_path = path.join(app.config['UPLOAD_FOLDER'], filename)
+        print(f"Processing video: {video_path}")
+        text_output = get_prediction.predict(video_path, 'default_user')
+        is_processing = True
     return render_template("interpreter.html", 
                            text_output=text_output,
                            is_processing=is_processing)
