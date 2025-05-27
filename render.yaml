@@ -25,3 +25,4 @@ services:
         value: redis://red-d0r2flqdbo4c73emjt4g:6379
     disk:
       name: data-disk
+      mountPath: /data
