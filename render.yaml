@@ -7,6 +7,8 @@ services:
     envVars:
       - key: FLASK_ENV
         value: production
+      - key: REDIS_URL
+        value: redis://red-d0r2flqdbo4c73emjt4g:6379
     disks:
       - name: data-disk
         mountPath: /data
@@ -16,10 +18,15 @@ services:
     env: python
     buildCommand: pip install -r requirements.txt
     startCommand: celery -A celery_worker.celery worker --loglevel=info --concurrency=1
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: REDIS_URL
+        value: redis://red-d0r2flqdbo4c73emjt4g:6379
     disks:
       - name: data-disk
         mountPath: /data
 
 disks:
   - name: data-disk
-    sizeGB: 10
+    sizeGB: 1
