@@ -57,7 +57,7 @@ def predict(video_path, user_id):
     
     try:
         # Use ensemble prediction
-        ensemble_pred = create_models.ensemble_prediction_per_frame(models, X)
+        ensemble_pred = ensemble_prediction_per_frame(models, X)
         
         if ensemble_pred.size > 0:
             # Get predictions for each frame
