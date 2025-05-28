@@ -20,10 +20,15 @@ NUM_CLASSES = len(label_encoder.classes_)
 def predict(video_path, user_id):
     # Load the trained ensemble models
     attention_model = create_models.create_attention_model(NUM_CLASSES, SEQUENCE_LENGTH, NUM_FEATURES)
+    attention_model.load_weights('model/attention_model_weights.h5')
     print("Attention model created successfully.")
+
     cnn_model = create_models.create_cnn_lstm_model(NUM_CLASSES, SEQUENCE_LENGTH, NUM_FEATURES)
+    cnn_model.load_weights('model/cnn_lstm_model_weights.h5')
     print("CNN-LSTM model created successfully.")
+
     transformer_model = create_models.create_transformer_model(NUM_CLASSES, SEQUENCE_LENGTH, NUM_FEATURES)
+    transformer_model.load_weights('model/transformer_model_weights.h5')
     print("Transformer model created successfully.")
 
     models = [attention_model, cnn_model, transformer_model]
