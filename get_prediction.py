@@ -141,15 +141,13 @@ def ensemble_prediction_per_frame(models, X_data, min_confidence=0.0):
     if not all_predictions:
         print("Error: No valid predictions for ensembling.")
         return np.array([])
+    
+    filtered_predictions = [p for p in all_predictions if not np.isnan(p).all()]
 
     # Stack and average, ignoring NaNs (frames with no confident prediction)
-    stacked = np.stack(all_predictions, axis=0)  # shape: (n_models, n_samples, seq_len, n_classes)
+    stacked = np.stack(filtered_predictions, axis=0)  # shape: (n_models, n_samples, seq_len, n_classes)
     with np.errstate(invalid='ignore'):
         ensemble_pred = np.nanmean(stacked, axis=0)  # shape: (n_samples, seq_len, n_classes)
-
-    print(ensemble_pred.shape, ensemble_pred)
-    if np.isnan(ensemble_pred).all():
-        return "PREDICT_FAILURE"
 
     return ensemble_pred
 
