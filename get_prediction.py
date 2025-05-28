@@ -10,7 +10,7 @@ import create_models
 from cv2 import VideoCapture
 
 SEQUENCE_LENGTH = 9
-NUM_FEATURES = 252
+NUM_FEATURES = 93
 
 with open('model/label_encoder_per_frame.pkl', 'rb') as f:
     label_encoder = load(f)
@@ -44,7 +44,7 @@ def predict(video_path, user_id):
     X, _ = data_processing.prepare_sequences(
         landmarks_df, 
         sequence_length=SEQUENCE_LENGTH, 
-        include_pairwise=False,
+        include_pairwise=True,
         pad_value=0.0
     )
     
