@@ -3,7 +3,6 @@ from pickle import load
 from os import path
 from numpy import argmax
 from pandas import DataFrame
-#from memory_profiler import profile
 
 import video_loader
 import obj_detect
@@ -12,16 +11,15 @@ import create_models
 
 from cv2 import VideoCapture
 
-SEQUENCE_LENGTH = 9  # Should match what the model was trained on
-NUM_FEATURES = 93     # (21 landmarks * 3 coords) + 30 pairwise features (15 dist + 15 angles)
-                        # Adjust if your feature extraction is different (e.g., no pairwise: 63)
+SEQUENCE_LENGTH = 9
+NUM_FEATURES = 93
 
 with open('model/label_encoder.pkl', 'rb') as f:
     label_encoder = load(f)
 
-print(label_encoder.classes_)  # Print the classes for debugging
+print(label_encoder.classes_)
 
-NUM_CLASSES = len(label_encoder.classes_)  # Number of classes in the dataset
+NUM_CLASSES = len(label_encoder.classes_)
 
 def predict(video_path, user_id):
     attention_model = create_models.create_attention_model(NUM_CLASSES, SEQUENCE_LENGTH, NUM_FEATURES)
@@ -32,7 +30,6 @@ def predict(video_path, user_id):
     print("Transformer model created successfully.")
     predictions = []
     landmarks = process_video_file_to_landmarks(video_path)
-    #print(f"Extracted landmarks: {landmarks.shape} for user: {user_id}")
     df_data = [{'video_id': f'live_{user_id}', 'label': 'unknown', 'landmarks': landmarks}]
     landmarks_df = DataFrame(df_data)
     X, _ = data_processing.prepare_sequences(
@@ -54,7 +51,6 @@ def predict(video_path, user_id):
             except Exception as e:
                 print(f"Error during prediction with {model.name}: {e}")
         seq_prediction =  max(set(seq_predictions), key=seq_predictions.count) if seq_predictions else 'unknown'
-        print(f"Predicted label for sequence: {seq_prediction}")
         if seq_prediction != (predictions[-1] if len(predictions) > 0 else None):
             predictions.append(seq_prediction)
     

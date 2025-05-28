@@ -1,5 +1,3 @@
-from cv2 import waitKey, resize
-
 class StreamInterface:
     def __init__(self,open,read_frame,error,close):
         self.open_fn = open
@@ -26,8 +24,6 @@ def read_and_process(stream_src, process_fn,n_skip=0):
         for _ in range(n_skip):
             stream.read_frame()
         frame = stream.read_frame()
-        #frame = resize(frame, (640, 480))
         if frame[1] is None:
             return
         process_fn(frame[1])
-    stream.close()
