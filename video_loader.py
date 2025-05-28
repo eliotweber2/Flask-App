@@ -19,7 +19,7 @@ class StreamInterface:
     def close(self):
         self.close_fn(self.video_input)
 
-def read_and_process(stream_src, process_fn, stop_key='q', n_skip=0):
+def read_and_process(stream_src, process_fn,n_skip=0):
     stream = stream_src()
     stream.open()
     while True:
@@ -32,6 +32,4 @@ def read_and_process(stream_src, process_fn, stop_key='q', n_skip=0):
         if frame[1] is None:
             return
         process_fn(frame[1])
-        if stop_key and waitKey(1) & 0xFF == ord(stop_key):
-            break
     stream.close()
