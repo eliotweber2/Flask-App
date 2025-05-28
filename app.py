@@ -9,13 +9,15 @@ import os
 
 # Import functions from your data_processing script
 import get_prediction
-
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = '/data/uploads'
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 MB limit
 app.config['UPLOAD_FOLDER'] = '/data/uploads'
 if not path.exists(app.config['UPLOAD_FOLDER']):
     makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+redis_client = redis.StrictRedis.from_url(app.config.get('REDIS_URL', 'redis://localhost:6379'))
+
 
 processing_results = {}
 
@@ -27,6 +29,7 @@ def make_celery(app):
         broker=redis_url
     )
     celery.conf.update(app.config)
+    print(os.listdir(app.config['UPLOAD_FOLDER']))
     return celery
 
 celery = make_celery(app)
@@ -37,12 +40,17 @@ def home():
     return render_template("index.html")
 
 @celery.task()
-def run_prediction(video_path, user, filename):
-    print(f"Processing video: {video_path} for user: {user}")
-    print(path.exists(video_path))
-    print(listdir(app.config['UPLOAD_FOLDER']))
-    result = get_prediction.predict(video_path, user)
-    print(f"Processing result for {filename}: {result}")
+def run_prediction(filename, user):
+    # Retrieve file bytes from Redis
+    file_bytes = redis_client.get(f"video:{filename}")
+    if file_bytes is None:
+        result = "File not found in Redis."
+    else:
+        # Save to a temp file or process directly
+        temp_path = f"/tmp/{filename}"
+        with open(temp_path, "wb") as f:
+            f.write(file_bytes)
+        result = get_prediction.predict(temp_path, user)
     processing_results[filename] = result
     return result
 
@@ -56,11 +64,11 @@ def interpreter_page():
             video_file = request.files['video']
             if video_file.filename != '':
                 filename = video_file.filename
-                video_path = path.join(app.config['UPLOAD_FOLDER'], filename)
-                video_file.save(video_path)
-                print(f"Video saved to {video_path}")
+                file_bytes = video_file.read()
+
+                redis_client.set(f"video:{filename}", file_bytes)
                 # Start celery task
-                task = run_prediction.delay(video_path, 'default_user', filename)
+                task = run_prediction.delay(filename, 'default_user')
                 processing_results[filename] = None  # Mark as processing
                 return redirect(url_for('interpreter_page', filename=filename))
             else:
