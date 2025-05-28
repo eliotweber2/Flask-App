@@ -10,7 +10,7 @@ import create_models
 from cv2 import VideoCapture
 
 SEQUENCE_LENGTH = 9
-NUM_FEATURES = 93
+NUM_FEATURES = 372
 
 with open('model/label_encoder_per_frame.pkl', 'rb') as f:
     label_encoder = load(f)
