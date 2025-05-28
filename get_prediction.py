@@ -33,7 +33,7 @@ def predict(video_path, user_id):
     print("Transformer model created successfully.")
     predictions = []
     landmarks = process_video_file_to_landmarks(video_path)
-    print(f"Extracted landmarks: {landmarks.shape} for user: {user_id}")
+    #print(f"Extracted landmarks: {landmarks.shape} for user: {user_id}")
     df_data = [{'video_id': f'live_{user_id}', 'label': 'unknown', 'landmarks': landmarks}]
     landmarks_df = DataFrame(df_data)
     X, _ = data_processing.prepare_sequences(
@@ -42,7 +42,7 @@ def predict(video_path, user_id):
             include_pairwise=True,
             pad_value=0.0
         )
-    
+    print(f"Prepared sequences for user: {user_id}")
     for sequence in X:
         seq_predictions = []
         for model in [attention_model, cnn_model, transformer_model]:
