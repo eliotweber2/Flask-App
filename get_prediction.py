@@ -1,7 +1,7 @@
 from keras.config import enable_unsafe_deserialization
 from pickle import load
 from os import path
-from numpy import argmax
+import numpy as np
 from pandas import DataFrame
 import video_loader
 import obj_detect
@@ -63,7 +63,7 @@ def predict(video_path, user_id):
             # Get predictions for each frame
             frame_predictions = []
             for frame_idx in range(ensemble_pred.shape[1]):
-                frame_pred_class = argmax(ensemble_pred[0, frame_idx, :])
+                frame_pred_class = np.argmax(ensemble_pred[0, frame_idx, :])
                 frame_pred_label = label_encoder.inverse_transform([frame_pred_class])[0]
                 frame_predictions.append(frame_pred_label)
             
@@ -80,6 +80,49 @@ def predict(video_path, user_id):
         return 'unknown'
     
     return 'unknown'
+
+    
+def ensemble_prediction_per_frame(models, X_data):
+    """Ensemble predictions by averaging. Handles different sequence lengths by taking majority vote per original frame."""
+    if not models:
+        print("Error: No models provided for ensemble prediction.")
+        return np.array([])
+
+    original_seq_len = X_data.shape[1]
+    n_samples = X_data.shape[0]
+    
+    # Get predictions from all models
+    all_predictions = []
+    for name, model in models:
+        pred_raw = model.predict(X_data, verbose=0)
+        model_seq_len = pred_raw.shape[1]
+        
+        if model_seq_len == original_seq_len:
+            # Direct use for models with same sequence length
+            all_predictions.append(pred_raw)
+        else:
+            # Upsample predictions to match original sequence length
+            # Simple interpolation approach
+            upsampled_pred = np.zeros((n_samples, original_seq_len, pred_raw.shape[2]))
+            for i in range(n_samples):
+                for class_idx in range(pred_raw.shape[2]):
+                    # Interpolate each class probability
+                    original_indices = np.linspace(0, model_seq_len - 1, original_seq_len)
+                    upsampled_pred[i, :, class_idx] = np.interp(
+                        original_indices, 
+                        np.arange(model_seq_len), 
+                        pred_raw[i, :, class_idx]
+                    )
+            all_predictions.append(upsampled_pred)
+            print(f"Upsampled {name} predictions from {model_seq_len} to {original_seq_len} frames")
+
+    if not all_predictions:
+        print("Error: No valid predictions for ensembling.")
+        return np.array([])
+
+    # Average all predictions
+    ensemble_pred = np.mean(all_predictions, axis=0)
+    return ensemble_pred
                 
 def format_landmarks(frame_lst):
     formatted_landmarks = '||||'.join(
