@@ -75,6 +75,7 @@ def predict(video_path, user_id):
             
             # Filter consecutive duplicates
             filtered_predictions = []
+            print("Frame predictions:", frame_predictions)
             for pred in frame_predictions:
                 if not filtered_predictions or pred != filtered_predictions[-1]:
                     filtered_predictions.append(pred)
