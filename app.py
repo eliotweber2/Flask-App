@@ -16,7 +16,7 @@ app.config['UPLOAD_FOLDER'] = '/data/uploads'
 if not path.exists(app.config['UPLOAD_FOLDER']):
     makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-redis_client = redis.StrictRedis.from_url(app.config.get('REDIS_URL', 'redis://localhost:6379'))
+redis_client = redis.StrictRedis.from_url(app.config.get('REDIS_URL'))
 
 
 processing_results = {}
