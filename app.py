@@ -29,7 +29,6 @@ def make_celery(app):
         broker=redis_url
     )
     celery.conf.update(app.config)
-    print(os.listdir(app.config['UPLOAD_FOLDER']))
     return celery
 
 celery = make_celery(app)
@@ -52,6 +51,9 @@ def run_prediction(filename, user):
             f.write(file_bytes)
         result = get_prediction.predict(temp_path, user)
     processing_results[filename] = result
+    print(f"Prediction for {filename} completed: {result}")
+    redis_client.set(f"result:{filename}", result)
+    
     return result
 
 @app.route("/interpreter", methods=['GET', 'POST'])
@@ -77,13 +79,13 @@ def interpreter_page():
 
     filename = request.args.get('filename')
     if filename:
-        result = processing_results.get(filename)
+        result = redis_client.get(f"result:{filename}")
         if result is None:
             is_processing = True
             text_output = ""
         else:
             is_processing = True
-            text_output = result
+            text_output = result.decode() if isinstance(result, bytes) else result
 
     return render_template("interpreter.html",
                            text_output=text_output,
@@ -93,7 +95,8 @@ def interpreter_page():
 @app.route("/check_result")
 def check_result():
     filename = request.args.get('filename')
-    result = processing_results.get(filename)
+    print(f"Checking result for {filename}")
+    result = redis_client.get(f"result:{filename}")
     print(result)
     return jsonify({"ready": result is not None})
 

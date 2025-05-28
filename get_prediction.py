@@ -24,7 +24,6 @@ print(label_encoder.classes_)  # Print the classes for debugging
 NUM_CLASSES = len(label_encoder.classes_)  # Number of classes in the dataset
 
 def predict(video_path, user_id):
-    print(f"Predicting for video: {video_path} for user: {user_id}")
     attention_model = create_models.create_attention_model(NUM_CLASSES, SEQUENCE_LENGTH, NUM_FEATURES)
     print("Attention model created successfully.")
     cnn_model = create_models.create_cnn_lstm_model(NUM_CLASSES, SEQUENCE_LENGTH, NUM_FEATURES)
@@ -42,7 +41,6 @@ def predict(video_path, user_id):
             include_pairwise=True,
             pad_value=0.0
         )
-    print(f"Prepared sequences for user: {user_id}")
     for sequence in X:
         seq_predictions = []
         for model in [attention_model, cnn_model, transformer_model]:

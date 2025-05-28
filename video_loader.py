@@ -23,12 +23,10 @@ def read_and_process(stream_src, process_fn,n_skip=0):
     stream = stream_src()
     stream.open()
     while True:
-        print("Reading frame...")
         for _ in range(n_skip):
             stream.read_frame()
         frame = stream.read_frame()
         #frame = resize(frame, (640, 480))
-        print(frame)
         if frame[1] is None:
             return
         process_fn(frame[1])
