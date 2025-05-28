@@ -27,7 +27,7 @@ def predict(video_path, user_id):
     print(f"Predicting for video: {video_path} for user: {user_id}")
     predictions = []
     landmarks = process_video_file_to_landmarks(video_path)
-        
+    print(f"Extracted landmarks: {landmarks.shape} for user: {user_id}")
     df_data = [{'video_id': f'live_{user_id}', 'label': 'unknown', 'landmarks': landmarks}]
     landmarks_df = DataFrame(df_data)
     X, _ = data_processing.prepare_sequences(
