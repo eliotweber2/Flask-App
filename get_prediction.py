@@ -25,6 +25,12 @@ NUM_CLASSES = len(label_encoder.classes_)  # Number of classes in the dataset
 
 def predict(video_path, user_id):
     print(f"Predicting for video: {video_path} for user: {user_id}")
+    attention_model = create_models.create_attention_model(NUM_CLASSES, SEQUENCE_LENGTH, NUM_FEATURES)
+    print("Attention model created successfully.")
+    cnn_model = create_models.create_cnn_lstm_model(NUM_CLASSES, SEQUENCE_LENGTH, NUM_FEATURES)
+    print("CNN-LSTM model created successfully.")
+    transformer_model = create_models.create_transformer_model(NUM_CLASSES, SEQUENCE_LENGTH, NUM_FEATURES)
+    print("Transformer model created successfully.")
     predictions = []
     landmarks = process_video_file_to_landmarks(video_path)
     print(f"Extracted landmarks: {landmarks.shape} for user: {user_id}")
@@ -87,12 +93,5 @@ def process_video_file_to_landmarks(video_path):
     return format_landmarks(landmark_lst)
 
 enable_unsafe_deserialization()
-
-attention_model = create_models.create_attention_model(NUM_CLASSES, SEQUENCE_LENGTH, NUM_FEATURES)
-print("Attention model created successfully.")
-cnn_model = create_models.create_cnn_lstm_model(NUM_CLASSES, SEQUENCE_LENGTH, NUM_FEATURES)
-print("CNN-LSTM model created successfully.")
-transformer_model = create_models.create_transformer_model(NUM_CLASSES, SEQUENCE_LENGTH, NUM_FEATURES)
-print("Transformer model created successfully.")
 
 detector = obj_detect.Landmark_Creator() 

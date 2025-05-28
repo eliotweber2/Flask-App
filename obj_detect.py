@@ -1,4 +1,4 @@
-from cv2 import imread, cvtColor, COLOR_BGR2RGB
+from cv2 import imread, cvtColor, COLOR_BGR2RGB, resize
 from mediapipe import solutions
 
 MIN_HANDS = 1
