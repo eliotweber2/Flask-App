@@ -5,12 +5,6 @@ from celery import Celery
 import redis
 import os
 
-r = redis.Redis.from_url(os.environ["REDIS_URL"])
-try:
-    r.ping()
-    print("Redis connection successful!")
-except Exception as e:
-    print("Redis connection failed:", e)
 #from memory_profiler import profile
 
 # Import functions from your data_processing script
