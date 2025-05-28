@@ -61,7 +61,7 @@ def predict(video_path, user_id):
     
     try:
         # Use ensemble prediction
-        ensemble_pred = ensemble_prediction_per_frame(models, X, 0.8)
+        ensemble_pred = ensemble_prediction_per_frame(models, X, 0.5)
         if ensemble_pred == "PREDICT_FAILURE":
             print("Ensemble prediction failed")
             return 'unknown'
