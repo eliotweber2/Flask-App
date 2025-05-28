@@ -8,7 +8,7 @@ from tensorflow import squeeze, expand_dims, reduce_sum
 from tensorflow.nn import softmax
 #from memory_profiler import profile
 
-def create_attention_lstm_per_frame_model(n_classes, sequence_length, n_features):
+def create_attention_model(n_classes, sequence_length, n_features):
     """LSTM-based model for per-frame predictions."""
     input_layer = Input(shape=(sequence_length, n_features), name="input_lstm")
     x = Bidirectional(LSTM(256, return_sequences=True))(input_layer)
@@ -25,7 +25,7 @@ def create_attention_lstm_per_frame_model(n_classes, sequence_length, n_features
 
 # Create CNN-LSTM model for ensemble
 
-def create_cnn_lstm_per_frame_model(n_classes, sequence_length, n_features):
+def create_cnn_lstm_model(n_classes, sequence_length, n_features):
     """CNN-LSTM model for per-frame predictions.
     Note: Pooling reduces sequence length. Output will be shorter than input.
     """
@@ -48,7 +48,7 @@ def create_cnn_lstm_per_frame_model(n_classes, sequence_length, n_features):
     model = Model(inputs=input_layer, outputs=output_layer, name="PerFrameCNN_LSTM")
     return model
 
-def create_transformer_per_frame_model(n_classes, sequence_length, n_features):
+def create_transformer_model(n_classes, sequence_length, n_features):
     """Transformer-based model for per-frame predictions."""
     input_layer = Input(shape=(sequence_length, n_features), name="input_transformer")
     x = LayerNormalization(epsilon=1e-6)(input_layer)
