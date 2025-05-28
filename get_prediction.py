@@ -14,7 +14,7 @@ from cv2 import VideoCapture
 SEQUENCE_LENGTH = 9
 NUM_FEATURES = 93
 
-with open('model/label_encoder.pkl', 'rb') as f:
+with open('model/label_encoder_per_frame.pkl', 'rb') as f:
     label_encoder = load(f)
 
 print(label_encoder.classes_)

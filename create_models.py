@@ -43,7 +43,7 @@ def create_attention_model(n_classes, sequence_length, n_features):
     # Create model
     model = Model(inputs=input_layer, outputs=output_layer)
 
-    model.load_weights('model/sign_language_model_Attention_LSTM.weights.h5')
+    model.load_weights('model/sign_language_model_Per_Frame_LSTM_per_frame.weights.h5')
     
     return model
 # Create CNN-LSTM model for ensemble
@@ -72,7 +72,7 @@ def create_cnn_lstm_model(n_classes, sequence_length, n_features):
     # Create model
     model = Model(inputs=input_layer, outputs=output_layer)
 
-    model.load_weights('model/sign_language_model_CNN_LSTM.weights.h5')
+    model.load_weights('model/sign_language_model_Per_Frame_CNN_LSTM_per_frame.weights.h5')
     
     return model
 # Create Transformer model for ensemble
@@ -116,6 +116,6 @@ def create_transformer_model(n_classes, sequence_length, n_features):
     # Create model
     model = Model(inputs=input_layer, outputs=output_layer)
 
-    model.load_weights('model/sign_language_model_Transformer.weights.h5')
+    model.load_weights('model/sign_language_model_Per_Frame_Transformer_per_frame.weights.h5')
 
     return model
