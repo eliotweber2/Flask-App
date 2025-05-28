@@ -20,13 +20,14 @@ class StreamInterface:
         self.close_fn(self.video_input)
 
 def read_and_process(stream_src, process_fn, stop_key='q', n_skip=0):
-    print(stream_src)
     stream = stream_src()
     stream.open()
     while True:
+        print("Reading frame...")
         for _ in range(n_skip):
             stream.read_frame()
         frame = stream.read_frame()
+        print(frame)
         if frame[1] is None:
             return
         process_fn(frame[1])
