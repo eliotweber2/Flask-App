@@ -19,7 +19,14 @@ NUM_CLASSES = len(label_encoder.classes_)
 
 def predict(video_path, user_id):
     # Load the trained ensemble models
-    models, loaded_label_encoder = create_models.load_ensemble_per_frame_models()
+    attention_model = create_models.create_attention_model(NUM_CLASSES, SEQUENCE_LENGTH, NUM_FEATURES)
+    print("Attention model created successfully.")
+    cnn_model = create_models.create_cnn_lstm_model(NUM_CLASSES, SEQUENCE_LENGTH, NUM_FEATURES)
+    print("CNN-LSTM model created successfully.")
+    transformer_model = create_models.create_transformer_model(NUM_CLASSES, SEQUENCE_LENGTH, NUM_FEATURES)
+    print("Transformer model created successfully.")
+
+    models = [attention_model, cnn_model, transformer_model]
     
     if not models:
         print("No trained models found!")
@@ -57,7 +64,7 @@ def predict(video_path, user_id):
             frame_predictions = []
             for frame_idx in range(ensemble_pred.shape[1]):
                 frame_pred_class = argmax(ensemble_pred[0, frame_idx, :])
-                frame_pred_label = loaded_label_encoder.inverse_transform([frame_pred_class])[0]
+                frame_pred_label = label_encoder.inverse_transform([frame_pred_class])[0]
                 frame_predictions.append(frame_pred_label)
             
             # Filter consecutive duplicates
