@@ -138,7 +138,7 @@ def ensemble_prediction_per_frame(models, X_data, min_confidence=0.0):
 
         all_predictions.append(masked_pred)
 
-    if not all_predictions:
+    if len(all_predictions == 0):
         print("Error: No valid predictions for ensembling.")
         return np.array([])
     
