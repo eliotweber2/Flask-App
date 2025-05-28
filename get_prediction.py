@@ -62,7 +62,9 @@ def predict(video_path, user_id):
     try:
         # Use ensemble prediction
         ensemble_pred = ensemble_prediction_per_frame(models, X, 0.8)
-        
+        if ensemble_pred == "PREDICT_FAILURE":
+            print("Ensemble prediction failed")
+            return 'unknown'
         if ensemble_pred.size > 0:
             # Get predictions for each frame
             frame_predictions = []
@@ -145,9 +147,9 @@ def ensemble_prediction_per_frame(models, X_data, min_confidence=0.0):
     with np.errstate(invalid='ignore'):
         ensemble_pred = np.nanmean(stacked, axis=0)  # shape: (n_samples, seq_len, n_classes)
 
-    # If all models are below confidence for a frame, result will be NaN for that frame
-    # Optionally, you can fill NaNs with zeros or uniform probabilities if desired:
-    ensemble_pred = np.nan_to_num(ensemble_pred, nan=0.0)
+    print(ensemble_pred.shape, ensemble_pred)
+    if np.isnan(ensemble_pred).all():
+        return "PREDICT_FAILURE"
 
     return ensemble_pred
 
