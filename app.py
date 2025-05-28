@@ -37,6 +37,7 @@ def home():
 def run_prediction(filename, user):
     # Retrieve file bytes from Redis
     file_bytes = redis_client.get(f"video:{filename}")
+    redis_client.delete(f"result:{filename}")
     if file_bytes is None:
         result = "File not found in Redis."
     else:
