@@ -90,9 +90,6 @@ def interpreter_page():
 def check_result():
     filename = request.args.get('filename')
     result = redis_client.get(f"result:{filename}")
-
-    if result is not None:
-        redis_client.flushdb()
     return jsonify({"ready": result is not None})
 
 if __name__ == "__main__":
