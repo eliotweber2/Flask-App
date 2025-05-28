@@ -33,7 +33,7 @@ def predict(video_path, user_id):
         return 'unknown'
     
     # Use the loaded label encoder instead of the global one
-    if loaded_label_encoder is None:
+    if label_encoder is None:
         print("Label encoder not found!")
         return 'unknown'
     
