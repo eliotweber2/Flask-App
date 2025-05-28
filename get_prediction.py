@@ -56,7 +56,7 @@ def predict(video_path, user_id):
     
     try:
         # Use ensemble prediction
-        ensemble_pred = ensemble_prediction_per_frame(models, X)
+        ensemble_pred = ensemble_prediction_per_frame(models, X, 0.8)
         
         if ensemble_pred.size > 0:
             # Get predictions for each frame
@@ -81,47 +81,72 @@ def predict(video_path, user_id):
     return 'unknown'
 
     
-def ensemble_prediction_per_frame(models, X_data):
-    """Ensemble predictions by averaging. Handles different sequence lengths by taking majority vote per original frame."""
+def ensemble_prediction_per_frame(models, X_data, min_confidence=0.0):
+    """Ensemble predictions by averaging. Handles different sequence lengths by taking majority vote per original frame.
+    Only includes model predictions for a frame if the model's max probability for that frame >= min_confidence.
+    """
     if not models:
         print("Error: No models provided for ensemble prediction.")
         return np.array([])
 
     original_seq_len = X_data.shape[1]
     n_samples = X_data.shape[0]
-    
+    n_classes = None
+
     # Get predictions from all models
     all_predictions = []
     for model in models:
         pred_raw = model.predict(X_data, verbose=0)
         model_seq_len = pred_raw.shape[1]
-        
+        n_classes = pred_raw.shape[2]
+
         if model_seq_len == original_seq_len:
-            # Direct use for models with same sequence length
-            all_predictions.append(pred_raw)
+            pred = pred_raw
         else:
             # Upsample predictions to match original sequence length
-            # Simple interpolation approach
-            upsampled_pred = np.zeros((n_samples, original_seq_len, pred_raw.shape[2]))
+            upsampled_pred = np.zeros((n_samples, original_seq_len, n_classes))
             for i in range(n_samples):
-                for class_idx in range(pred_raw.shape[2]):
-                    # Interpolate each class probability
+                for class_idx in range(n_classes):
                     original_indices = np.linspace(0, model_seq_len - 1, original_seq_len)
                     upsampled_pred[i, :, class_idx] = np.interp(
-                        original_indices, 
-                        np.arange(model_seq_len), 
+                        original_indices,
+                        np.arange(model_seq_len),
                         pred_raw[i, :, class_idx]
                     )
-            all_predictions.append(upsampled_pred)
+            pred = upsampled_pred
+            print(f"Upsampled predictions from {model_seq_len} to {original_seq_len} frames")
+
+        # Compute per-frame confidence (max probability per frame)
+        frame_confidence = np.max(pred, axis=2)  # shape: (n_samples, original_seq_len)
+
+        # Mask out predictions below min_confidence
+        mask = frame_confidence >= min_confidence  # shape: (n_samples, original_seq_len)
+        masked_pred = np.zeros_like(pred)
+        for i in range(n_samples):
+            for t in range(original_seq_len):
+                if mask[i, t]:
+                    masked_pred[i, t, :] = pred[i, t, :]
+                else:
+                    masked_pred[i, t, :] = np.nan  # Use NaN so we can ignore in averaging
+
+        all_predictions.append(masked_pred)
 
     if not all_predictions:
         print("Error: No valid predictions for ensembling.")
         return np.array([])
 
-    # Average all predictions
-    ensemble_pred = np.mean(all_predictions, axis=0)
+    # Stack and average, ignoring NaNs (frames with no confident prediction)
+    stacked = np.stack(all_predictions, axis=0)  # shape: (n_models, n_samples, seq_len, n_classes)
+    with np.errstate(invalid='ignore'):
+        ensemble_pred = np.nanmean(stacked, axis=0)  # shape: (n_samples, seq_len, n_classes)
+
+    # If all models are below confidence for a frame, result will be NaN for that frame
+    # Optionally, you can fill NaNs with zeros or uniform probabilities if desired:
+    ensemble_pred = np.nan_to_num(ensemble_pred, nan=0.0)
+
     return ensemble_pred
-                
+
+
 def format_landmarks(frame_lst):
     formatted_landmarks = '||||'.join(
         ['|||'.join(
