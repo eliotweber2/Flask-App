@@ -35,9 +35,11 @@ def predict(video_path, user_id):
     X, _ = data_processing.prepare_sequences(
             landmarks_df, 
             sequence_length=SEQUENCE_LENGTH, 
-            include_pairwise=True,
+            include_pairwise=False,
             pad_value=0.0
         )
+    
+    print("Input shape to model:", X.shape)
     for sequence in X:
         seq_predictions = []
         for model in [attention_model, cnn_model, transformer_model]:
