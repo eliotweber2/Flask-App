@@ -37,7 +37,6 @@ def predict(video_path, user_id):
         print("Label encoder not found!")
         return 'unknown'
     
-    predictions = []
     landmarks = process_video_file_to_landmarks(video_path)
     df_data = [{'video_id': f'live_{user_id}', 'label': 'unknown', 'landmarks': landmarks}]
     landmarks_df = DataFrame(df_data)
@@ -93,7 +92,7 @@ def ensemble_prediction_per_frame(models, X_data):
     
     # Get predictions from all models
     all_predictions = []
-    for name, model in models:
+    for model in models:
         pred_raw = model.predict(X_data, verbose=0)
         model_seq_len = pred_raw.shape[1]
         
@@ -114,7 +113,6 @@ def ensemble_prediction_per_frame(models, X_data):
                         pred_raw[i, :, class_idx]
                     )
             all_predictions.append(upsampled_pred)
-            print(f"Upsampled {name} predictions from {model_seq_len} to {original_seq_len} frames")
 
     if not all_predictions:
         print("Error: No valid predictions for ensembling.")
