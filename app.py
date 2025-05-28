@@ -91,7 +91,8 @@ def check_result():
     filename = request.args.get('filename')
     result = redis_client.get(f"result:{filename}")
 
-    redis_client.flushdb()
+    if result is not None:
+        redis_client.flushdb()
     return jsonify({"ready": result is not None})
 
 if __name__ == "__main__":
